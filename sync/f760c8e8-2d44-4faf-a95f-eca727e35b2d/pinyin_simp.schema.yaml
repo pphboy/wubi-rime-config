@@ -1,0 +1,161 @@
+# Rime schema
+# encoding: utf-8
+
+schema:
+  schema_id: pinyin_simp
+  name: '简体拼音'
+  version: "0.8"
+  author:
+    - 佚名
+  description: |
+    源自 Android 拼音
+  dependencies:
+    - stroke
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, 西文 ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+  - name: ascii_punct
+    states: [ 。，, ．， ]
+
+engine:
+  processors:
+    - ascii_composer
+    - recognizer
+    - key_binder
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - express_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - punct_translator
+    - script_translator
+    - reverse_lookup_translator
+
+speller:
+  alphabet: zyxwvutsrqponmlkjihgfedcba
+  delimiter: " '"
+  algebra:
+#    - abbrev/^([a-z]).+$/$1/
+#    - abbrev/^([zcs]h).+$/$1/
+#    - derive/^([nl])ue$/$1ve/
+#    - derive/^([jqxy])u/$1v/
+#    - derive/un$/uen/
+#    - derive/ui$/uei/
+#    - derive/iu$/iou/
+#    - derive/([aeiou])ng$/$1gn/
+#    - derive/([dtngkhrzcs])o(u|ng)$/$1o/
+#    - derive/ong$/on/
+#    - derive/ao$/oa/
+#    - derive/([iu])a(o|ng?)$/a$1$2/
+    - erase/^xx$/ # 碼表中有幾個拼音不明的字，編碼成xx了，消滅他
+    # 模糊音定義
+    # 需要哪組就刪去行首的 # 號，單雙向任選
+    #- derive/^([zcs])h/$1/ # zh, ch, sh => z, c, s
+    #- derive/^([zcs])([^h])/$1h$2/ # z, c, s => zh, ch, sh
+
+    #- derive/^n/l/ # n => l
+    #- derive/^l/n/ # l => n
+
+    # 這兩組一般是單向的
+    #- derive/^r/l/                     # r => l
+
+    #- derive/^ren/yin/                 # ren => yin, reng => ying
+    #- derive/^r/y/                     # r => y
+    
+    # 下面 hu <=> f 這組寫法複雜一些，分情況討論
+    #- derive/^hu$/fu/                  # hu => fu
+    #- derive/^hong$/feng/              # hong => feng
+    #- derive/^hu([in])$/fe$1/          # hui => fei, hun => fen
+    #- derive/^hu([ao])/f$1/            # hua => fa, ...
+
+    #- derive/^fu$/hu/                  # fu => hu
+    #- derive/^feng$/hong/              # feng => hong
+    #- derive/^fe([in])$/hu$1/          # fei => hui, fen => hun
+    #- derive/^f([ao])/hu$1/            # fa => hua, ...
+
+    # 韻母部份
+    #- derive/^([bpmf])eng$/$1ong/      # meng = mong, ...
+    - derive/([ei])n$/$1ng/ # en => eng, in => ing
+    - derive/([ei])ng$/$1n/ # eng => en, ing => in
+
+    - derive/^([jqxy])u$/$1v/
+    - derive/^([aoe])([ioun])$/$1$1$2/
+    
+    - xform/^([aoe])(ng)?$/$1$1$2/
+    - xform/iu$/Q/ # 替換聲母鍵，用大寫以防與原有的字母混淆
+    - xform/(.)ei$/$1W/
+    - xform/uan$/R/
+    - xform/[uv]e$/T/
+    - xform/un$/Y/
+    - xform/^sh/U/
+    - xform/^ch/I/
+    - xform/^zh/V/
+    - xform/uo$/O/
+    - xform/ie$/P/
+    - xform/i?ong$/S/
+    - xform/ing$|uai$/K/
+    - xform/(.)ai$/$1D/
+    - xform/(.)en$/$1F/
+    - xform/(.)eng$/$1G/
+    - xform/[iu]ang$/L/
+    - xform/(.)ang$/$1H/
+    - xform/ian$/M/
+    - xform/(.)an$/$1J/
+    - xform/(.)ou$/$1Z/
+    - xform/[iu]a$/X/
+    - xform/iao$/N/
+    - xform/(.)ao$/$1C/
+    - xform/ui$/V/
+    - xform/in$/B/
+    - xlit/QWRTYUIOPSDFGHJKLZXCVBNM/qwrtyuiopsdfghjklzxcvbnm/ # 最後把雙拼碼全部變小寫
+    - abbrev/^(.).+$/$1/ # 简拼(首字母)
+    
+translator:
+  dictionary: pinyin_simp
+  preedit_format:
+    - xform/([nl])v/$1ü/
+    - xform/([nl])ue/$1üe/
+    - xform/([jqxy])v/$1u/
+  enable_user_dict: true # 用户词典、词序自动调频
+  enable_encoder: true # 自动造词
+  enable_sentence: true # 自动造句
+  enable_completion: false # 自动补全
+  enable_charset_filter: true #启用罕见字過濾
+  enable_correction: false # 拼写纠错
+  encode_commit_history: true  # 对已上屏的内容自动造词
+  max_phrase_length: 7 # 自动造词的最长字数
+  
+reverse_lookup:
+  dictionary: stroke
+  enable_completion: true
+  prefix: "`"
+  suffix: "'"
+  tips: 〔笔画〕
+  preedit_format:
+    - xlit/hspnz/一丨丿丶乙/
+
+punctuator:
+  import_preset: symbols
+
+key_binder:
+  import_preset: default
+
+recognizer:
+  import_preset: default
+  patterns:
+    # hack: to enable "/fh" style symbols, '/' must be mapped to a [list].
+    # so those who have customized '/' for direct commit won't be affected by
+    # this change.
+    punct: "^/([0-9]+[a-z]*|[a-z]+)$"
+    reverse_lookup: "`[a-z]*'?$"

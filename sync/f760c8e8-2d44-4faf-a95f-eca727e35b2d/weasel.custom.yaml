@@ -1,0 +1,25 @@
+customization:
+  distribution_code_name: Weasel
+  distribution_version: 0.14.3
+  generator: "Weasel::UIStyleSettings"
+  modified_time: "Wed Jan 27 08:41:15 2021"
+  rime_version: 1.5.3
+
+patch:
+  "style/display_tray_icon": false
+  "style/horizontal": true #横排显示
+#  "style/font_face": "Microsoft YaHei" #字体
+#  "style/font_point": 13 #字体大小
+  "style/inline_preedit": true # 嵌入式候选窗单行显示
+
+  "style/layout/border_width": 1
+  "style/layout/border": 1
+  "style/layout/margin_x": 12 #候选字左右边距
+  "style/layout/margin_y": 12 #候选字上下边距
+#  "style/layout/hilite_padding": 12 #候选字背景色色块高度 若想候选字背景色块无边界填充候选框，仅需其高度和候选字上下边距一致即可
+  "style/layout/hilite_spacing": 3 # 序号和候选字之间的间隔
+#  "style/layout/spacing": 10 #作用不明
+  "style/layout/candidate_spacing": 6 # 候选字间隔
+#  "style/layout/round_corner": 0 #候选字背景色块圆角幅度
+  "style/color_scheme": lost_temple
+
